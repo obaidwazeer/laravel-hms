@@ -1,0 +1,46 @@
+name: GitHub context, variables and secrets
+on: 
+  workflow_dispatch:
+env:
+  APP_ENV: testing
+
+jobs:
+  context:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: repository checkout
+        uses: actions/checkout@v4
+
+      - name: show environment
+        run: echo "${{env.APP_ENV}}"
+
+      - name: show repository
+        run: echo "${{github.repository}}"
+
+      - name: show actor
+        run: echo "${{github.actor}}"
+
+      - name: show event
+        run: echo "${{github.event_name}}"
+
+      - name: show sha
+        run: echo "${{github.sha}}"
+
+      - name: show runner
+        run: echo "${{runner.os}}"
+
+      - name: show application version
+        run: echo "{{vars.APP_VERSION}}"
+
+      - name: Test secret
+        env:
+          DEMO_SECRET: ${{ secrets.DEMO_SECRET }}
+        run: |
+          if [ -n "$DEMO_SECRET" ]; then
+          echo "secret is available"
+          else
+          echo "secret is missing"
+          exit 1
+          fi
+        
