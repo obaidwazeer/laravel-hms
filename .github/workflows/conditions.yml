@@ -17,6 +17,13 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
 
+      - name: simulate failuer
+        run: exit 1
+
+      - name: failure message
+        if: ${{failure()}}
+        run: echo "Test job failed"
+        
       - name: print testing
         run: echo "Testing"
 
