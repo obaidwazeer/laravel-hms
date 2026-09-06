@@ -1,0 +1,30 @@
+name: GitHub Actions
+on:
+  push:
+    branches: 
+      - main
+  pull_request:
+    branches: 
+      - main
+  workflow_dispatch:
+
+jobs:
+  event-info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: workflow started
+        run: echo "Workflow statred"
+
+      - name: The event that triggered the workflow
+        run: echo "The event the triggered the workflow is ${{github.event_name}}"
+
+      - name: GitHub repository name
+        run: echo "The GitHub repository is ${{github.repository}}"
+
+      - name: GitHub referance
+        run: echo "GitHub referance ${{github.ref}}"
+  
