@@ -17,7 +17,7 @@ jobs:
         run: echo "this is the file content" > dist/app.txt
 
       - name: upload artificate
-        uses: actions/upload-artificate@v4
+        uses: actions/upload-artifact@v4
         with:
           name: application build
           path: dist/
@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: download artificate
-        uses: actions/download-artificate@v4
+        uses: actions/download-artifact@v4
         with:
           name: application build
 
