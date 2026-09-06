@@ -31,15 +31,14 @@ jobs:
       - name: print build message
         run: echo "Building application"
   deploy:
-    if: ${{github.event_name == 'push' && github.ref == 'ref/heads/main'}}
     needs:
-      - test
       - build
+    if: ${{github.event_name == 'push' && github.ref == 'ref/heads/main'}}
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout application
-        uses: actions/checkout@v4
+      - name: Deploy application
+        run: echo "Deploying to production"
 
       
 
