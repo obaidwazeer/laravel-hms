@@ -1,0 +1,51 @@
+name: conditions
+on:
+  push:
+    branches:
+      - main
+      - feature/login
+  pull_request: 
+    branches:
+      - feature/login
+  workflow_dispatch:
+
+    
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: print testing
+        run: echo "Testing"
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: print build message
+        run: echo "Building application"
+  deploy:
+    if: ${{github.event_name == 'push' && github.ref == 'ref/head/main'}}
+    needs:
+      - test
+      - build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout application
+        uses: actions/checkout@v4
+
+      
+
+
+
+
+
+
+        
