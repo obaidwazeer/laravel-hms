@@ -1,0 +1,38 @@
+name: Artificate Demo
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout application
+        uses: actions/checkout@v4
+
+      - name: make build directory
+        run: mkdir dist
+
+      - name: create application file
+        run: echo "this is the file content" > dist/app.txt
+
+      - name: upload artificate
+        uses: actions/upload-artificate@v4
+        with:
+          name: application build
+          path: dist/
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: download artificate
+        uses: actions/download-artificate@v4
+        with:
+          name: application build
+
+      - name: show artifact
+        run: cat app.txt
