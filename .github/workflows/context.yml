@@ -31,7 +31,7 @@ jobs:
         run: echo "${{runner.os}}"
 
       - name: show application version
-        run: echo {{vars.APP_VERSION}}
+        run: echo "${{vars.APP_VERSION}}"
 
       - name: Test secret
         env:
