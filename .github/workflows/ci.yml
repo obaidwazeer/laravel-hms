@@ -1,0 +1,59 @@
+name: Multiple jobs CI
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout application
+        uses: actions/checkout@v4
+
+      - name: Running test
+        run: echo "Running test"
+
+      - name: php version
+        run: php -version
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: Running lint
+        run: echo "Running lint check"
+
+        
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: security check
+        run: echo "Running security check"
+
+
+  build:
+    needs:
+      - test
+      - lint
+      - security
+      
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: building application
+        run: echo "building application"
+        
+  
