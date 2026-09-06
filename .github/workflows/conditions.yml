@@ -31,7 +31,7 @@ jobs:
       - name: print build message
         run: echo "Building application"
   deploy:
-    if: ${{github.event_name == 'push' && github.ref == 'ref/head/main'}}
+    if: ${{github.event_name == 'push' && github.ref == 'ref/heads/main'}}
     needs:
       - test
       - build
