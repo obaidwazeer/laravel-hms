@@ -1,9 +1,9 @@
 name: conditions
 on:
-  push:
-    branches:
-      - main
-      - feature/login
+  #push:
+   # branches:
+    #  - main
+     # - feature/login
   pull_request: 
     branches:
       - feature/login
