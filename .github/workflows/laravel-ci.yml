@@ -47,7 +47,7 @@ jobs:
             ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
             "cd /var/www/laravel-hms && \
              
-             # 3. Smart Code Sync: Clone ONLY if .git doesn't exist, otherwise pull updates
+             # 3. Smart Code Sync
              if [ ! -d .git ]; then \
                echo 'First time deployment: Cloning repository contents...'; \
                git clone https://github.com/obaidwazeer/laravel-hms.git . && \
@@ -63,22 +63,27 @@ jobs:
                echo 'Creating .env file from template...' && \
                cp .env.example .env && \
                
-               # 5. Inject the database secrets securely using sed replacement rules
+               # 5. Inject the database secrets securely
                sed -i 's/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_DATABASE }}/' .env && \
                sed -i 's/DB_USERNAME=.*/DB_USERNAME=${{ secrets.DB_USERNAME }}/' .env && \
-               sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"/' .env && \
-               
-               # 6. Generate a brand new application encryption key for production
-               php artisan key:generate; \
+               sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"/' .env; \
              fi && \
              
-             # 7. Run final production optimization suite
+             # 6. CRITICAL FIX: Run Composer Install FIRST to create the vendor directory
              composer install --no-dev --optimize-autoloader && \
+             
+             # 7. Now it is completely safe to run Artisan commands
+             if [ ! -f .env_key_built ]; then \
+               php artisan key:generate && \
+               touch .env_key_built; \
+             fi && \
+             
              php artisan migrate --force && \
              php artisan config:cache && \
              php artisan route:cache && \
              php artisan view:cache && \
              sudo chown -R www-data:www-data storage bootstrap/cache"
+
 
              php artisan route:cache && \
              php artisan view:cache && \
