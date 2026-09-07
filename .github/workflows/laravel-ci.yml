@@ -26,8 +26,6 @@ jobs:
       - name: generate app key
         run: php artisan key:generate
 
-      
-       # run: vendor/bin/pint --test
 
       - name: Run laravel test
         run: echo "database setup is required for this test"
