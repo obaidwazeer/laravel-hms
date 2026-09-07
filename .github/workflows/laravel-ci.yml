@@ -49,7 +49,15 @@ jobs:
             -i private_key \
             ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
             "cd /var/www && \
-             git clone https://github.com/obaidwazeer/laravel-hms.git && \
+             if [ ! -d .git ]; then \
+               echo 'First time deployment: Cloning repository contents...'; \
+               git clone https://github.com/obaidwazeer/laravel-hms.git . && \
+               git checkout main && \
+               sleep 1; \
+             else \
+               echo 'Subsequent deployment: Pulling latest changes...'; \
+               git pull origin main; \
+             fi && \
              
              # 3. Generate the .env file dynamically if it is missing
              if [ ! -f .env ]; then \
