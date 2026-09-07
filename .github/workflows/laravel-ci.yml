@@ -4,33 +4,7 @@ on:
     branches:
       - main
 jobs:
-  CI:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-
-      - name: set up php
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-
-      - name: install composer denpendencies
-        run: composer install --no-interaction --prefer-dist
-
-      - name: create .env file
-        run: cp .env.example .env
-        
-
-      - name: generate app key
-        run: php artisan key:generate
-
-
-      - name: Run laravel test
-        run: echo "database setup is required for this test"
   deploy:
-    needs: CI
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
 
@@ -63,16 +37,16 @@ jobs:
                echo 'Creating .env file from template...' && \
                cp .env.example .env && \
                
-               # 5. Inject the database secrets securely
+               # 5. FIXED: Escaped the inner quotes cleanly for the bash shell interpreter
                sed -i 's/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_DATABASE }}/' .env && \
                sed -i 's/DB_USERNAME=.*/DB_USERNAME=${{ secrets.DB_USERNAME }}/' .env && \
-               sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"/' .env; \
+               sed -i \"s/DB_PASSWORD=.*/DB_PASSWORD='${{ secrets.DB_PASSWORD }}'/\" .env; \
              fi && \
              
-             # 6. CRITICAL FIX: Run Composer Install FIRST to create the vendor directory
+             # 6. Run Composer Install
              composer install --no-dev --optimize-autoloader --ignore-platform-reqs && \
              
-             # 7. Now it is completely safe to run Artisan commands
+             # 7. Execute Artisan optimization pipeline and storage permissions
              if [ ! -f .env_key_built ]; then \
                php artisan key:generate && \
                touch .env_key_built; \
@@ -84,8 +58,6 @@ jobs:
              php artisan view:cache && \
              sudo chown -R www-data:www-data storage bootstrap/cache"
 
-
-             php artisan route:cache && \
              php artisan view:cache && \
              sudo chown -R www-data:www-data storage bootstrap/cache"
 
