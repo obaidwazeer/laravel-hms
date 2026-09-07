@@ -27,7 +27,6 @@ jobs:
         run: php artisan key:generate
 
       
-      #- name: check code formatting
        # run: vendor/bin/pint --test
 
       - name: Run laravel test
