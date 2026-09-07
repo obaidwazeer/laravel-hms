@@ -49,7 +49,7 @@ jobs:
             -i private_key \
             ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
             "cd /var/www/laravel-hms && \
-             git pull origin main && \
+             git clone https://github.com/obaidwazeer/laravel-hms.git && \
              
              # 3. Generate the .env file dynamically if it is missing
              if [ ! -f .env ]; then \
