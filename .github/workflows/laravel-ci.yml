@@ -1,8 +1,10 @@
 name: Laravel CI
+
 on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -21,13 +23,15 @@ jobs:
             ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
             "cd /var/www/laravel-hms && \
              
-             # 3. Smart Code Sync
+             # 3. Smart Code Sync with Permissions Elevation
              if [ ! -d .git ]; then \
                echo 'First time deployment: Cloning repository contents...'; \
                git clone https://github.com/obaidwazeer/laravel-hms.git . && \
                git checkout main; \
              else \
-               echo 'Subsequent deployment: Fetching latest changes...'; \
+               echo 'Subsequent deployment: Resetting folder ownership to enable file writes...'; \
+               sudo chown -R ${{ secrets.EC2_USERNAME }}:${{ secrets.EC2_USERNAME }} storage bootstrap/cache && \
+               echo 'Fetching and merging latest changes...'; \
                git fetch origin && \
                git reset --hard origin/main; \
              fi && \
@@ -37,7 +41,7 @@ jobs:
                echo 'Creating .env file from template...' && \
                cp .env.example .env && \
                
-               # 5. FIXED: Escaped the inner quotes cleanly for the bash shell interpreter
+               # 5. Escaped the inner quotes cleanly for the bash shell interpreter
                sed -i 's/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_DATABASE }}/' .env && \
                sed -i 's/DB_USERNAME=.*/DB_USERNAME=${{ secrets.DB_USERNAME }}/' .env && \
                sed -i \"s/DB_PASSWORD=.*/DB_PASSWORD='${{ secrets.DB_PASSWORD }}'/\" .env; \
@@ -46,7 +50,7 @@ jobs:
              # 6. Run Composer Install
              composer install --no-dev --optimize-autoloader --ignore-platform-reqs && \
              
-             # 7. Execute Artisan optimization pipeline and storage permissions
+             # 7. Execute Artisan optimization pipeline and hand over storage permissions back to Nginx
              if [ ! -f .env_key_built ]; then \
                php artisan key:generate && \
                touch .env_key_built; \
@@ -57,8 +61,3 @@ jobs:
              php artisan route:cache && \
              php artisan view:cache && \
              sudo chown -R www-data:www-data storage bootstrap/cache"
-
-             php artisan view:cache && \
-             sudo chown -R www-data:www-data storage bootstrap/cache"
-
-            
