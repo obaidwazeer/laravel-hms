@@ -70,7 +70,7 @@ jobs:
              fi && \
              
              # 6. CRITICAL FIX: Run Composer Install FIRST to create the vendor directory
-             composer install --no-dev --optimize-autoloader && \
+             composer install --no-dev --optimize-autoloader --ignore-platform-reqs && \
              
              # 7. Now it is completely safe to run Artisan commands
              if [ ! -f .env_key_built ]; then \
