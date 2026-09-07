@@ -48,34 +48,40 @@ jobs:
             -i private_key \
             ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
             "cd /var/www && \
+             
+             # 3. Smart Code Sync: Clone ONLY if .git doesn't exist, otherwise pull updates
              if [ ! -d .git ]; then \
                echo 'First time deployment: Cloning repository contents...'; \
-               git clone https://github.com/obaidwazeer/laravel-hms.git . && \
-               git checkout main && \
-               sleep 1; \
+               git clone https://github.com . && \
+               git checkout main; \
              else \
-               echo 'Subsequent deployment: Pulling latest changes...'; \
-               git pull origin main; \
+               echo 'Subsequent deployment: Fetching latest changes...'; \
+               git fetch origin && \
+               git reset --hard origin/main; \
              fi && \
              
-             # 3. Generate the .env file dynamically if it is missing
+             # 4. Generate the .env file dynamically if it is missing
              if [ ! -f .env ]; then \
                echo 'Creating .env file from template...' && \
                cp .env.example .env && \
                
-               # 4. Inject the database secrets securely using sed replacement rules
+               # 5. Inject the database secrets securely using sed replacement rules
                sed -i 's/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_DATABASE }}/' .env && \
                sed -i 's/DB_USERNAME=.*/DB_USERNAME=${{ secrets.DB_USERNAME }}/' .env && \
                sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"/' .env && \
                
-               # 5. Generate a brand new application encryption key for production
+               # 6. Generate a brand new application encryption key for production
                php artisan key:generate; \
              fi && \
              
-             # 6. Run final production optimization suite
+             # 7. Run final production optimization suite
              composer install --no-dev --optimize-autoloader && \
              php artisan migrate --force && \
              php artisan config:cache && \
+             php artisan route:cache && \
+             php artisan view:cache && \
+             sudo chown -R www-data:www-data storage bootstrap/cache"
+
              php artisan route:cache && \
              php artisan view:cache && \
              sudo chown -R www-data:www-data storage bootstrap/cache"
