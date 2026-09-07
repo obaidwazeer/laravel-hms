@@ -19,6 +19,9 @@ jobs:
       - name: install composer denpendencies
         run: composer install --no-interaction --prefer-dist
 
+      - name: create .env file
+        run: mv .env.example .env
+
       - name: generate app key
         run: php artisan key:generate
 
