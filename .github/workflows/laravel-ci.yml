@@ -26,7 +26,7 @@ jobs:
       - name: generate app key
         run: php artisan key:generate
 
-      # pint package is not present
+      
       #- name: check code formatting
        # run: vendor/bin/pint --test
 
