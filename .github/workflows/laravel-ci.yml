@@ -32,3 +32,45 @@ jobs:
 
       - name: Run laravel test
         run: echo "database setup is required for this test"
+  deploy:
+    needs: CI
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        run: |
+          # 1. Store the deployment key safely on the runner
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key
+          chmod 600 private_key
+
+          # 2. Connect to EC2 and execute initialization scripts
+          ssh -o StrictHostKeyChecking=no \
+            -i private_key \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+            "cd /var/www/laravel-hms && \
+             git pull origin main && \
+             
+             # 3. Generate the .env file dynamically if it is missing
+             if [ ! -f .env ]; then \
+               echo 'Creating .env file from template...' && \
+               cp .env.example .env && \
+               
+               # 4. Inject the database secrets securely using sed replacement rules
+               sed -i 's/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_DATABASE }}/' .env && \
+               sed -i 's/DB_USERNAME=.*/DB_USERNAME=${{ secrets.DB_USERNAME }}/' .env && \
+               sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"/' .env && \
+               
+               # 5. Generate a brand new application encryption key for production
+               php artisan key:generate; \
+             fi && \
+             
+             # 6. Run final production optimization suite
+             composer install --no-dev --optimize-autoloader && \
+             php artisan migrate --force && \
+             php artisan config:cache && \
+             php artisan route:cache && \
+             php artisan view:cache && \
+             sudo chown -R www-data:www-data storage bootstrap/cache"
+
+            
