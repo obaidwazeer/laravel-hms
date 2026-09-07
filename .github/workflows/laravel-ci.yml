@@ -52,7 +52,7 @@ jobs:
              # 3. Smart Code Sync: Clone ONLY if .git doesn't exist, otherwise pull updates
              if [ ! -d .git ]; then \
                echo 'First time deployment: Cloning repository contents...'; \
-               git clone https://github.com . && \
+               git clone https://github.com/obaidwazeer/laravel-hms.git . && \
                git checkout main; \
              else \
                echo 'Subsequent deployment: Fetching latest changes...'; \
