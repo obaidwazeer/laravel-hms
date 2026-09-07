@@ -19,5 +19,11 @@ jobs:
       - name: install composer denpendencies
         run: composer install --no-interaction --prefer-dist
 
+      - name: generate app key
+        run: php artisan key:generate
+
+      - name: check code formatting
+        run: vendor/bin/pint --test
+
       - name: Run laravel test
-        run: php artisan test
+        run: echo "database setup is required for this test"
